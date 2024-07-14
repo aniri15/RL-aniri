@@ -638,8 +638,10 @@ class RandDynObstEnv(gym.Env, EzPickle):
         obj_margin = 0.05  # margin from table edge
         object_qpos = self._utils.get_joint_qpos(self.model, self.data, "object0:joint")
         object_qpos[:2] = self.np_random.uniform(
-            ws_pos - self.get_wrapper_attr('obj_range') * (ws_size - obj_margin),
-            ws_pos + self.get_wrapper_attr('obj_range') * (ws_size - obj_margin),
+            #ws_pos - self.get_wrapper_attr('obj_range') * (ws_size - obj_margin),
+            #ws_pos + self.get_wrapper_attr('obj_range') * (ws_size - obj_margin),
+            ws_pos - self.obj_range * (ws_size - obj_margin),
+            ws_pos + self.obj_range * (ws_size - obj_margin),
             size=3
         )[:2]
         self._utils.set_joint_qpos(self.model, self.data, "object0:joint", object_qpos)
@@ -652,12 +654,15 @@ class RandDynObstEnv(gym.Env, EzPickle):
         # Sample goal
         goal = np.empty(3)
         goal[:2] = self.np_random.uniform(
-            ws_pos - self.get_wrapper_attr('target_range') * ws_size,
-            ws_pos + self.get_wrapper_attr('target_range') * ws_size,
+            #ws_pos - self.get_wrapper_attr('target_range') * ws_size,
+            #ws_pos + self.get_wrapper_attr('target_range') * ws_size,
+            ws_pos - self.target_range * ws_size,
+            ws_pos + self.target_range * ws_size,
             size=3
         )[:2]
         # for the target height we use sqrt, so that the robot has to learn to pick up quicker
-        goal[2] = object_qpos[2] + 0.02 + self.np_random.uniform(0, np.sqrt(self.get_wrapper_attr('target_range')) * ws_size[2] * 2, size=1)
+        #goal[2] = object_qpos[2] + 0.02 + self.np_random.uniform(0, np.sqrt(self.get_wrapper_attr('target_range')) * ws_size[2] * 2, size=1)
+        goal[2] = object_qpos[2] + 0.02 + self.np_random.uniform(0, np.sqrt(self.target_range) * ws_size[2] * 2, size=1)
         self.goal = goal.copy()
         # ensure that the robot has space to reach goal
         target_safe_size = self.get_geom_size('target0').copy()
